@@ -3230,6 +3230,11 @@ html.is-static-smooth .o-main .shopify-section {
   }
 }
 
+/* Currency/country overlay removed — keep hidden if old markup cached */
+.c-intlOverlay {
+  display: none !important;
+}
+
 /* Page route transitions — parallel slide up */
 .c-pageSlide {
   position: relative;

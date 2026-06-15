@@ -163,22 +163,6 @@
       btn.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
 
-    document.querySelectorAll('.js-locale-country').forEach((btn) => {
-      btn.classList.toggle('is-active', btn.dataset.country === locale.country);
-    });
-
-    document.querySelectorAll('.js-intl-switch').forEach((link) => {
-      const match = link.dataset.country === locale.country && link.dataset.lang === locale.lang;
-      if (match) link.setAttribute('aria-current', 'true');
-      else link.removeAttribute('aria-current');
-    });
-
-    const form = document.querySelector('.js-locale-form');
-    if (form) {
-      form.querySelector('[name="country_code"]').value = locale.country;
-      form.querySelector('[name="language_code"]').value = locale.lang;
-    }
-
     if (window.context) window.context.lang = locale.lang;
     if (window.currentMarket !== undefined) window.currentMarket = locale.country;
 
@@ -186,6 +170,7 @@
     if (headerLang) {
       headerLang.textContent = locale.lang === 'en' ? 'ES' : 'EN';
       headerLang.setAttribute('aria-label', locale.lang === 'en' ? 'See content in Spanish' : 'See content in english');
+      headerLang.dataset.lang = locale.lang === 'en' ? 'es' : 'en';
     }
   }
 
@@ -409,77 +394,18 @@
   }
 
   function initLocale() {
-    document.querySelectorAll('.js-locale-form').forEach((form) => {
-      form.addEventListener('submit', (e) => e.preventDefault());
-    });
-
     document.addEventListener('click', (e) => {
-      const intlLink = e.target.closest('.js-intl-switch');
-      if (intlLink) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        setLocale({
-          country: intlLink.dataset.country || readLocale().country,
-          lang: intlLink.dataset.lang || readLocale().lang,
-          currency: intlLink.dataset.currency || readLocale().currency,
-          countryLabel: intlLink.closest('.c-intlOverlay__country')
-            ?.querySelector('h4')?.textContent?.trim() || readLocale().countryLabel,
-          currencyLabel: formatCurrencyLabel(intlLink.dataset.currency || readLocale().currency),
-        });
-        closeLayer(document.querySelector('.js-intlOverlay'));
-        return;
-      }
-
       const langBtn = e.target.closest('.js-locale-lang');
-      if (langBtn) {
-        e.preventDefault();
-        const target = langBtn.dataset.lang;
-        const current = readLocale().lang;
-        const next = langBtn.closest('.c-header__extras')
-          ? (current === 'en' ? 'es' : 'en')
-          : target;
-        setLocale({ lang: next });
-        return;
-      }
+      if (!langBtn) return;
 
-      const countryBtn = e.target.closest('.js-locale-country');
-      if (countryBtn) {
-        e.preventDefault();
-        setLocale({
-          country: countryBtn.dataset.country,
-          currency: countryBtn.dataset.currency,
-          countryLabel: countryBtn.dataset.name,
-          currencyLabel: countryBtn.dataset.currencyLabel,
-        });
-        const localeRoot = countryBtn.closest('.js-menu-locale');
-        localeRoot?.classList.remove('is-open');
-        const toggle = localeRoot?.querySelector('.js-menu-locale-toggle');
-        toggle?.setAttribute('aria-expanded', 'false');
-        localeRoot?.querySelector('.js-menu-locale-panel')?.setAttribute('hidden', '');
-        return;
-      }
-
-      const localeToggle = e.target.closest('.js-menu-locale-toggle');
-      if (localeToggle) {
-        e.preventDefault();
-        const root = localeToggle.closest('.js-menu-locale');
-        const panel = root?.querySelector('.js-menu-locale-panel');
-        const open = root?.classList.toggle('is-open');
-        localeToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        if (panel) {
-          if (open) panel.removeAttribute('hidden');
-          else panel.setAttribute('hidden', '');
-        }
-      }
+      e.preventDefault();
+      const target = langBtn.dataset.lang;
+      const current = readLocale().lang;
+      const next = langBtn.closest('.c-header__extras')
+        ? (current === 'en' ? 'es' : 'en')
+        : target;
+      setLocale({ lang: next });
     }, true);
-
-    document.querySelectorAll('.js-lang-switch').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const next = readLocale().lang === 'en' ? 'es' : 'en';
-        setLocale({ lang: next });
-      });
-    });
   }
 
   function initHeaderSubmenus() {
